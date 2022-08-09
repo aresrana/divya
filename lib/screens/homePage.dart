@@ -1,206 +1,351 @@
+// import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:divya/screens/Worship.dart';
+import 'package:divya/screens/trial.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:divya/screens/mainPage.dart';
+import 'package:page_transition/page_transition.dart';
 import '../guitarTab/guitarTab.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
-    @override
+  @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //categories
-  List<String> categories = ["Popular", "Recommended", "Special Order", "Fresh Juice", "Trending", "Customize" ];
   int currentCategoryIndex = 0;
   bool searching = false;
-  final _searchController = TextEditingController();
+
   FocusNode focusNode = FocusNode();
   @override
   void initState() {
-    //add products
     super.initState();
   }
 
   @override
   void dispose() {
-    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: const Icon(Icons.menu,color: Colors.black,),
-        backgroundColor: Colors.transparent,
-             elevation: 0,
-        actions: const [
-          Padding(padding: EdgeInsets.only(right: 50),
-            child: Icon(Icons.print,color:Colors.black,))
-        ],
-      ),
-      body:body(),
-    );
+    return SafeArea(child:
+      Scaffold(
+      // appBar: AppBar(
+      //   leadingWidth: 40,
+      //   leading: const Icon(
+      //     Icons.menu,
+      //     color: Colors.indigo,
+      //   ),
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      // ),
+      body: body(),
+      ));
   }
+
 //body
   Widget body() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-
-        _buildCategories(),
-        _html()
-
-      ],
-    );
-  }
-
-  Widget _buildCategories() {
-    return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20) ,
-        child:
-        SizedBox(
-          height: 30,
-          child: ListView.builder(
-              itemCount: categories.length,
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemBuilder: (context, index){
-                return  currentCategoryIndex == index ? _buildCurrentCategory(index): _buildCategory(index);
-              }
+    return SingleChildScrollView(
+        child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+          SizedBox(
+            height: 5,
           ),
-        )
-    );
-  }
-  Widget _buildCurrentCategory(int index){
-    return  Container(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      child: Text(
-        categories.elementAt(index),
-        style: const TextStyle(fontSize: 12, color: Colors.white),
-      ),
-      decoration:  BoxDecoration(
-        color: Colors.black,
-        border: Border.all(),
-        borderRadius: const BorderRadius.all(Radius.circular(15)),
-      ),
-    );
-  }
-  Widget _buildCategory(index) {
-    return  InkWell(
-      onTap: (){
-        setState(() {
-          currentCategoryIndex = index;
-        });
-      },
-      child:
-      Container(
-        padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        child: Text(
-          categories.elementAt(index),
-          style: const TextStyle(fontSize: 12,),
-        ),
-        decoration:  BoxDecoration(
-          border: Border.all(),
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-        ),
-      ),
-    );
-  }
+          Container(
+              padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(children: const [
+                    Text('Dear Ashish', style: TextStyle(fontSize: 18)),
+                    Text('PRAISE THE LORD',
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.indigo)),
+                    SizedBox(
+                      height: 20,
+                    ),
+                  ]),
+                  CircleAvatar(
+                    radius: 25,
+                  ),
+                ],
+              )),
+          SizedBox(
+            height: 10,
+          ),
+          _songs(context),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(children: const [
+                Icon(
+                  Icons.church_sharp,
+                  color: Colors.indigo,
+                  size: 20,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  'Meetings',
+                  style: TextStyle(fontSize: 18),
+                )
+              ])),
+          SizedBox(
+            height: 20,
+          ),
+          _meetings(context),
+          SizedBox(
+            height: 20,
+          ),
+          Container(
+              padding: EdgeInsets.only(left: 10),
+              child: Row(children: const [
+                Icon(
+                  Icons.music_note_sharp,
+                  color: Colors.indigo,
+                  size: 20,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  'Guitar Chords',
+                  style: TextStyle(fontSize: 18),
+                )
+              ])),
+          const SizedBox(
+            height: 20,
+          ),
+          _guitarChord(context),
+          const SizedBox(
+            height: 100,
+          ),
+        ]));
 
-
+    // _html(context)
+  }
 }
 
-Widget _html() {
-  return Column(
-    children: [
-      const Text("\nWorship"),
-      StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection("Worship").snapshots(),
-        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if(snapshot.hasData) {
-            final snap = snapshot.data!.docs;
-            return ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              itemCount: snap.length,
-              itemBuilder: (context, index) {
-                // return Container(
-                //   height: 70,
-                //   width: double.infinity,
-                //   margin: const EdgeInsets.only(bottom: 12),
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(20),
-                //     boxShadow: const [
-                //       BoxShadow(
-                //         color: Colors.black26,
-                //         offset: Offset(2, 2),
-                //         blurRadius: 10,
-                //       ),
-                //     ],
-                //   ),
-                  return Stack(
-                    children: [
-                      GestureDetector(
-                        child:Container(
+// Widget _html(BuildContext context) {
+//
+//   return Column(
+//     children: [
+//
+//       StreamBuilder<QuerySnapshot>(
+//         stream: FirebaseFirestore.instance.collection("Worship").snapshots(),
+//         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+//           if(snapshot.hasData) {
+//             final snap = snapshot.data!.docs;
+//             return ListView.builder(
+//               shrinkWrap: true,
+//               primary: false,
+//               itemCount: snap.length,
+//               itemBuilder: (context, index) {
+//                          return Stack(
+//                     children: [
+//                       GestureDetector(
+//                         child:Container(
+//
+//                           height:50,
+//                       width: MediaQuery.of(context).size.width,
+//
+//
+//                       child: Card(
+//                         child: Center(
+//                           child: Row (
+//                             children : [
+//                                                  Text(
+//
+//                           snap[index]['name'],
+//                           textAlign: TextAlign.start,
+//                           style: const TextStyle(
+//                             color: Colors.black54,
+//                             fontWeight: FontWeight.bold,
+//                           ),
+//                         ),
+//                             SizedBox(width:50),
+//                             Text(
+//
+//                               snap[index]['title'],
+//                               textAlign: TextAlign.start,
+//                               style: const TextStyle(
+//                                 color: Colors.black54,
+//                                 fontWeight: FontWeight.bold,
+//                               ),
+//                             ),
+//                           ]
+//
+//
+//                         )),
+//                       )),
+//                         onTap: () {
+//
+//                      var ur= snap[index]['url'];
+//                      var ti =snap[index]['title'];
+//                      var music =snap[index]['music'];
+//
+//                      Navigator.push(context,MaterialPageRoute(builder: (context) => DashBoards(url:ur,le:ti,music:music)));
+//
+//
+//                         },
+//
+//                       )
+//                       ],
+//                 //   ),
+//                  );
+//               },
+//             );
+//           } else {
+//             return const SizedBox();
+//           }
+//         },
+//       )
+//     ],
+//
+//   );
+//
+//
+// }
 
-                          height:50,
-                      width: MediaQuery.of(context).size.width,
+Widget _songs(BuildContext context) {
+  return CarouselSlider(
+    items: [
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              image: DecorationImage(
+                  image: AssetImage('images/worship.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {
+         Navigator.push(context,MaterialPageRoute(builder: (context) => WorshipPage())
+                    );
 
 
-                      child: Card(
-                        child: Center(
-                          child: Row (
-                            children : [
-                                                 Text(
-
-                          snap[index]['name'],
-                          textAlign: TextAlign.start,
-                          style: const TextStyle(
-                            color: Colors.black54,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                            SizedBox(width:50),
-                            Text(
-
-                              snap[index]['title'],
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ]
-
-
-                        )),
-                      )),
-                        onTap: () {
-                          GuitarTab(title: snap[index]['title'],name:snap[index]['name'],url:snap[index]['url']);
-
-                        },
-
-                      )
-                      ],
-                //   ),
-                 );
-              },
-            );
-          } else {
-            return const SizedBox();
-          }
         },
+      ),
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              image: DecorationImage(
+                  image: AssetImage('images/pray.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
+      ),
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              image: DecorationImage(
+                  image: AssetImage('images/witness.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
+      ),
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              image: DecorationImage(
+                  image: AssetImage('images/rapture.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
       )
     ],
+    options: CarouselOptions(
+        height: MediaQuery.of(context).size.height * 0.27,
+        autoPlay: true,
+        autoPlayCurve: Curves.easeInOut,
+        enlargeCenterPage: true,
+        reverse: true,
+        viewportFraction: 0.8),
+  );
+}
+
+Widget _meetings(BuildContext context) {
+  return CarouselSlider(
+    items: [
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(100)),
+              image: DecorationImage(
+                  image: AssetImage('images/worship.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
+      ),
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              image: DecorationImage(
+                  image: AssetImage('images/pray.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
+      ),
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+              image: DecorationImage(
+                  image: AssetImage('images/witness.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
+      ),
+      GestureDetector(
+        child: Container(
+          decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(0)),
+              image: DecorationImage(
+                  image: AssetImage('images/rapture.jpg'), fit: BoxFit.cover)),
+        ),
+        onTap: () {},
+      ),
+    ],
+    options: CarouselOptions(
+        aspectRatio: 1,
+        height: MediaQuery.of(context).size.height * 0.2,
+        autoPlay: true,
+        autoPlayCurve: Curves.decelerate,
+        enlargeCenterPage: true,
+        reverse: true,
+        viewportFraction: 0.4),
+  );
+}
+
+Widget _guitarChord(BuildContext context) {
+  return GestureDetector(
+      child: Container(
+        height: 140,
+        width: 140,
+        decoration: const BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            image: DecorationImage(
+                image: AssetImage('images/worship.jpg'), fit: BoxFit.cover)),
+      ),
+      onTap: () =>
+          Navigator.of(context).push(
+
+          PageTransition(
+          child: DashBoard(), type: PageTransitionType.rightToLeft,
+
+        duration: Duration(milliseconds: 600),
+            reverseDuration: Duration(milliseconds: 600),
+            opaque: false
+
+      ))
 
   );
-
-
-}//product model class
-
+}

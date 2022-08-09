@@ -39,6 +39,12 @@ dependencies:
   firebase_auth:
   cloud_firestore:
   webview_flutter_plus:
+  audioplayers: ^0.20.1
+  marquee: ^2.2.3
+  carousel_slider:
+  page_transition:
+
+
 
 dev_dependencies:
   flutter_test:
@@ -63,9 +69,12 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - images/worship.jpg
+    - images/pray.jpg
+    - images/witness.jpg
+    - images/rapture.jpg
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
