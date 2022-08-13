@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'guitarTab/tabPage.dart';
+import 'guitarTab/playerPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-      home: TabPage(),
+      home: PlayerPage(le: '', url: '',music: ''),
     );
   }
 }

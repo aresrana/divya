@@ -1,4 +1,4 @@
-// import 'dart:html';
+
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:divya/screens/Worship.dart';
@@ -6,17 +6,26 @@ import 'package:divya/screens/trial.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:divya/screens/mainPage.dart';
+import 'package:divya/guitarTab/playerPage.dart';
 import 'package:page_transition/page_transition.dart';
-import '../guitarTab/guitarTab.dart';
+
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+    Function _miniPlayer;
+
+   MyHomePage(this._miniPlayer);
+
+
+ // const MyHomePage({Key? key}) : super(key: key);
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState(_miniPlayer);
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final  Function _miniPlayer;
+
+  _MyHomePageState(this._miniPlayer);
+
   int currentCategoryIndex = 0;
   bool searching = false;
 
@@ -35,15 +44,6 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return SafeArea(child:
       Scaffold(
-      // appBar: AppBar(
-      //   leadingWidth: 40,
-      //   leading: const Icon(
-      //     Icons.menu,
-      //     color: Colors.indigo,
-      //   ),
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
       body: body(),
       ));
   }
@@ -130,94 +130,38 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
           _guitarChord(context),
           const SizedBox(
-            height: 100,
+            height: 20,
           ),
-        ]));
+              Container(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Row(children: const [
+                    Icon(
+                      Icons.music_note_sharp,
+                      color: Colors.indigo,
+                      size: 20,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'Recommended Songs',
+                      style: TextStyle(fontSize: 18),
+                    )
+                  ])),
+
+
+              _recommended(_miniPlayer),
+              const SizedBox(
+                height: 50,
+              ),
+
+            ]));
 
     // _html(context)
   }
 }
 
-// Widget _html(BuildContext context) {
-//
-//   return Column(
-//     children: [
-//
-//       StreamBuilder<QuerySnapshot>(
-//         stream: FirebaseFirestore.instance.collection("Worship").snapshots(),
-//         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//           if(snapshot.hasData) {
-//             final snap = snapshot.data!.docs;
-//             return ListView.builder(
-//               shrinkWrap: true,
-//               primary: false,
-//               itemCount: snap.length,
-//               itemBuilder: (context, index) {
-//                          return Stack(
-//                     children: [
-//                       GestureDetector(
-//                         child:Container(
-//
-//                           height:50,
-//                       width: MediaQuery.of(context).size.width,
-//
-//
-//                       child: Card(
-//                         child: Center(
-//                           child: Row (
-//                             children : [
-//                                                  Text(
-//
-//                           snap[index]['name'],
-//                           textAlign: TextAlign.start,
-//                           style: const TextStyle(
-//                             color: Colors.black54,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                             SizedBox(width:50),
-//                             Text(
-//
-//                               snap[index]['title'],
-//                               textAlign: TextAlign.start,
-//                               style: const TextStyle(
-//                                 color: Colors.black54,
-//                                 fontWeight: FontWeight.bold,
-//                               ),
-//                             ),
-//                           ]
-//
-//
-//                         )),
-//                       )),
-//                         onTap: () {
-//
-//                      var ur= snap[index]['url'];
-//                      var ti =snap[index]['title'];
-//                      var music =snap[index]['music'];
-//
-//                      Navigator.push(context,MaterialPageRoute(builder: (context) => DashBoards(url:ur,le:ti,music:music)));
-//
-//
-//                         },
-//
-//                       )
-//                       ],
-//                 //   ),
-//                  );
-//               },
-//             );
-//           } else {
-//             return const SizedBox();
-//           }
-//         },
-//       )
-//     ],
-//
-//   );
-//
-//
-// }
+
 
 Widget _songs(BuildContext context) {
   return CarouselSlider(
@@ -349,3 +293,82 @@ Widget _guitarChord(BuildContext context) {
 
   );
 }
+Widget _recommended(_miniPlayer) {
+  return Column(
+    children: [
+
+      StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection("Worship").snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if(snapshot.hasData) {
+            final snap = snapshot.data!.docs;
+            return ListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              itemCount: snap.length,
+              itemBuilder: (context, index) {
+                         return Stack(
+                    children: [
+                      GestureDetector(
+                        child:Container(
+
+                          height:50,
+                      width: MediaQuery.of(context).size.width,
+
+
+                      child: Card(
+                        child: Center(
+                          child: Row (
+                            children : [
+                                                 Text(
+
+                          snap[index]['name'],
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                            SizedBox(width:50),
+                            Text(
+
+                              snap[index].['title'],
+                              textAlign: TextAlign.start,
+                              style: const TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ]
+                       )),
+                      )),
+                        onTap: () {
+
+                           var ur= snap[index]['url'];
+                           var ti =snap[index]['title'];
+                           var music =snap[index]['music'];
+
+
+                
+                          _miniPlayer(url:ur,le:ti,music:music);
+
+                        },
+
+                      )
+                      ],
+                //   ),
+                 );
+              },
+            );
+          } else {
+            return const SizedBox();
+          }
+        },
+      )
+    ],
+
+  );
+
+
+}
+

@@ -6,7 +6,7 @@ import '../widgets/CustomDrawer.dart';
 class DashBoards extends StatefulWidget {
   late final String url;
   late final String le;
-  late final music;
+  late final String music;
   DashBoards(
       {Key? key, required this.url, required this.le, required this.music})
       : super(key: key);
@@ -27,7 +27,7 @@ class _DashBoardsState extends State<DashBoards> {
   int currentCategoryIndex = 0;
   FocusNode focusNode = FocusNode();
   late final String url;
-  late final music;
+  late final String music;
   late final String le;
   final audioPlayer = AudioPlayer();
   bool isPlaying = false;
