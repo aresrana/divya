@@ -43,6 +43,26 @@ dependencies:
   marquee: ^2.2.3
   carousel_slider:
   page_transition:
+  swipe_deck:
+  custom_navigator: ^0.3.0
+  provider: ^6.0.3
+  flutter_neumorphic: ^3.2.0
+  path_provider:
+  flutter_downloader: ^1.7.0
+  dio:
+  printing:
+  permission_handler: ^8.1.6
+  advance_pdf_viewer:
+  shared_preferences:
+
+
+
+
+
+
+
+
+
 
 
 

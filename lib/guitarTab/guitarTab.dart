@@ -1,13 +1,12 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../widgets/CustomDrawer.dart';
 
 class DashBoards extends StatefulWidget {
-  late final String url;
-  late final String le;
-  late final String music;
-  DashBoards(
+  final String url;
+  final String le;
+  final String music;
+  const DashBoards(
       {Key? key, required this.url, required this.le, required this.music})
       : super(key: key);
 
@@ -41,7 +40,6 @@ class _DashBoardsState extends State<DashBoards> {
     super.initState();
     setAudio();
 
-
     audioPlayer.onPlayerStateChanged.listen((state) {
       setState(() {
         isPlaying = state == PlayerState.PLAYING;
@@ -61,12 +59,11 @@ class _DashBoardsState extends State<DashBoards> {
     });
   }
 
-Future setAudio () async {
+  Future setAudio() async {
     audioPlayer.setReleaseMode(ReleaseMode.LOOP);
     audioPlayer.setUrl(widget.music);
-    
+  }
 
-}
   @override
   void dispose() {
     audioPlayer.dispose();
@@ -87,54 +84,51 @@ Future setAudio () async {
           _buildCategories(),
           Expanded(
               child: WebView(
+            javascriptMode: JavascriptMode.unrestricted,
             initialUrl: widget.url,
           )),
           Container(
               color: Colors.transparent,
-         child: Slider(
-           activeColor: Colors.black,
-            inactiveColor: Colors.red,
-            thumbColor: Colors.white,
-            min: 0,
-            max: duration.inSeconds.toDouble(),
-            value: position.inSeconds.toDouble(),
-            onChanged: (value) async {
-             final position = Duration(seconds: value.toInt());
-             await audioPlayer.seek(position);
-             audioPlayer.resume();
-
-
-            },
-          )),
-           Container(
-             color: Colors.transparent,
-             padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
-           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(formatTime(position)),
-              CircleAvatar(
-                backgroundColor: Colors.black,
-                radius: 20,
-                child: IconButton(
-                  icon:
-                  Icon(isPlaying ? Icons.pause : Icons.play_arrow_rounded,color: Colors.white,),
-                  onPressed: () async {
-                    if (isPlaying) {
-                      await audioPlayer.pause();
-
-                    } else {
-                      await audioPlayer.resume();
-                    }
-                  },
-                ),
-              ),
-
-              Text(formatTime(duration - position)),
-
-            ],
-          )),
-
+              child: Slider(
+                activeColor: Colors.black,
+                inactiveColor: Colors.red,
+                thumbColor: Colors.white,
+                min: 0,
+                max: duration.inSeconds.toDouble(),
+                value: position.inSeconds.toDouble(),
+                onChanged: (value) async {
+                  final position = Duration(seconds: value.toInt());
+                  await audioPlayer.seek(position);
+                  audioPlayer.resume();
+                },
+              )),
+          Container(
+              color: Colors.transparent,
+              padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(formatTime(position)),
+                  CircleAvatar(
+                    backgroundColor: Colors.black,
+                    radius: 20,
+                    child: IconButton(
+                      icon: Icon(
+                        isPlaying ? Icons.pause : Icons.play_arrow_rounded,
+                        color: Colors.white,
+                      ),
+                      onPressed: () async {
+                        if (isPlaying) {
+                          await audioPlayer.pause();
+                        } else {
+                          await audioPlayer.resume();
+                        }
+                      },
+                    ),
+                  ),
+                  Text(formatTime(duration - position)),
+                ],
+              )),
         ],
       ),
     );
@@ -204,6 +198,4 @@ Future setAudio () async {
     final seconds = twoDigits(duration.inSeconds.remainder(60));
     return [if (duration.inHours > 0) hours, minutes, seconds].join(':');
   }
-
-
 }

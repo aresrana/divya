@@ -1,193 +1,230 @@
-
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:divya/screens/Worship.dart';
+import 'package:divya/extra/Worship.dart';
+import 'package:divya/screens/prayer.dart';
 import 'package:divya/screens/trial.dart';
-import 'package:flutter/cupertino.dart';
+
+import 'package:divya/services/song_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:divya/guitarTab/playerPage.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 
+import '../componet/song_widget.dart';
+import '../model/song.dart';
+import '../services/auth.dart';
+import 'worship.dart';
 
 class MyHomePage extends StatefulWidget {
-    Function _miniPlayer;
+  const MyHomePage({Key? key}) : super(key: key);
 
-   MyHomePage(this._miniPlayer);
-
-
- // const MyHomePage({Key? key}) : super(key: key);
   @override
-  State<MyHomePage> createState() => _MyHomePageState(_miniPlayer);
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final  Function _miniPlayer;
-
-  _MyHomePageState(this._miniPlayer);
-
   int currentCategoryIndex = 0;
+  final User? user = Auth().currentUser;
   bool searching = false;
-
+  //1-first create a song list that you gonna display in the page
+  List<Song> _songList = [];
   FocusNode focusNode = FocusNode();
   @override
   void initState() {
+    //2-get the song list from the provider and set it to the list that we created
+    Provider.of<SongProvider>(context, listen: false)
+        .getSongsByCollection('Worship')
+        .then((value) {
+      setState(() {
+        _songList = value;
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+    print(user?.email);
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(child:
-      Scaffold(
-      body: body(),
-      ));
-  }
 
-//body
-  Widget body() {
-    return SingleChildScrollView(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-          SizedBox(
-            height: 5,
-          ),
+    final provider = context.watch<SongProvider>();
+    return SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.grey[300],
+            body: SingleChildScrollView(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+          const SizedBox(height: 5),
           Container(
-              padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+              padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(children: const [
-                    Text('Dear Ashish', style: TextStyle(fontSize: 18)),
-                    Text('PRAISE THE LORD',
+                  Column(children:  [
+                    Text('Dear ${user?.email}', style: TextStyle(fontSize: 18)),
+                    const Text('PRAISE THE LORD',
                         style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                             color: Colors.indigo)),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    SizedBox(height: 20),
                   ]),
-                  CircleAvatar(
-                    radius: 25,
-                  ),
+                  const CircleAvatar(radius: 25),
                 ],
               )),
-          SizedBox(
+          const SizedBox(
             height: 10,
           ),
           _songs(context),
-          SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           Container(
-              padding: EdgeInsets.only(left: 10),
+              padding: const EdgeInsets.only(left: 10),
               child: Row(children: const [
-                Icon(
-                  Icons.church_sharp,
-                  color: Colors.indigo,
-                  size: 20,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  'Meetings',
-                  style: TextStyle(fontSize: 18),
-                )
+                Icon(Icons.church_sharp, color: Colors.indigo, size: 20),
+                SizedBox(width: 10),
+                Text('Meetings', style: TextStyle(fontSize: 18))
               ])),
-          SizedBox(
+          const SizedBox(
             height: 20,
           ),
           _meetings(context),
-          SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           Container(
-              padding: EdgeInsets.only(left: 10),
+              padding: const EdgeInsets.only(left: 10),
               child: Row(children: const [
-                Icon(
-                  Icons.music_note_sharp,
-                  color: Colors.indigo,
-                  size: 20,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  'Guitar Chords',
-                  style: TextStyle(fontSize: 18),
-                )
+                Icon(Icons.music_note_sharp, color: Colors.indigo, size: 20),
+                SizedBox(width: 10),
+                Text('Guitar Chords', style: TextStyle(fontSize: 18))
               ])),
-          const SizedBox(
-            height: 20,
-          ),
+          const SizedBox(height: 20),
           _guitarChord(context),
-          const SizedBox(
-            height: 20,
-          ),
-              Container(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Row(children: const [
-                    Icon(
-                      Icons.music_note_sharp,
-                      color: Colors.indigo,
-                      size: 20,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Text(
-                      'Recommended Songs',
-                      style: TextStyle(fontSize: 18),
-                    )
-                  ])),
+          const SizedBox(height: 20),
+          // Container(
+          //     padding: const EdgeInsets.only(left: 10),
+          //     child: Row(children: const [
+          //       Icon(Icons.music_note_sharp, color: Colors.indigo, size: 20),
+          //       SizedBox(width: 10),
+          //       Text('Recommended Songs', style: TextStyle(fontSize: 18))
+          //     ])),
+          //             const SizedBox(height: 15),
+          // provider.isLoading
+          //     ? const CircularProgressIndicator()
+          //     //4-Create your own widget to display the song list i recommend keeping this one
+          //     : ListView.builder(
+          //         shrinkWrap: true,
+          //         primary: false,
+          //         padding: const EdgeInsets.symmetric(horizontal: 10),
+          //         itemCount: _songList.length,
+          //         itemBuilder: (context, index) {
+          //           final song = _songList[index];
+          //           //5-pass the song and the song list to SongWidget
+          //           return SongWidget(song: song, playingSongList: _songList);
+          //         },
+          //       ),
+          // const SizedBox(height: 50),
+        ]))
+            // _html(context)
 
-
-              _recommended(_miniPlayer),
-              const SizedBox(
-                height: 50,
-              ),
-
-            ]));
-
-    // _html(context)
+            ));
   }
+
+//body
+
 }
 
-
-
 Widget _songs(BuildContext context) {
-  return CarouselSlider(
+  return Container(
+    height: MediaQuery.of(context).size.height*0.3,
+    child: CarouselSlider(
     items: [
       GestureDetector(
         child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              image: DecorationImage(
-                  image: AssetImage('images/worship.jpg'), fit: BoxFit.cover)),
+          decoration:  BoxDecoration(
+            boxShadow: const [
+              BoxShadow(
+                  color: Color.fromRGBO(0, 0, 0, 0.1),
+                  //spreadRadius: 3.0,
+                  //blurRadius: 3.0,
+                  //offset: Offset(6,2)
+
+              ),
+              BoxShadow(
+                  color: Color.fromRGBO(255,255,255, 0.9),
+                  //spreadRadius: 3.0,
+                //  blurRadius: 3.0,
+                  //offset: Offset( -6,2)
+
+              ),
+
+            ],
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            border:Border.all(
+                color:Colors.grey.shade300,
+                width:8
+            ),
+            image: const DecorationImage(
+                image: AssetImage('images/worship.jpg'),
+                fit: BoxFit.cover),
+
+          ),
+          //
+          // decoration: const BoxDecoration(
+          //     borderRadius: BorderRadius.all(Radius.circular(12)),
+          //     image: DecorationImage(
+          //         image: AssetImage('images/worship.jpg'), fit: BoxFit.cover)
+
+
         ),
         onTap: () {
-         Navigator.push(context,MaterialPageRoute(builder: (context) => WorshipPage())
-                    );
-
-
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => WorshipSongPage()));
         },
       ),
       GestureDetector(
         child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              image: DecorationImage(
-                  image: AssetImage('images/pray.jpg'), fit: BoxFit.cover)),
-        ),
-        onTap: () {},
+
+          width: MediaQuery.of(context).size.width*.7,
+          decoration:  BoxDecoration(
+            color: Colors.grey[300],
+              borderRadius: BorderRadius.all(Radius.circular(50)),
+            boxShadow:  [
+              BoxShadow(
+                  color: Colors.grey[500]!,
+                  // Color.fromRGBO(128, 128, 128, 0.1),
+                  spreadRadius: 1.0,
+                  blurRadius: 15.0,
+                  offset: Offset(4,4)
+
+              ),
+              BoxShadow(
+                  color: Colors.grey[300]!,
+                  //Color.fromRGBO(228,228,228, 0.6),
+                  spreadRadius: 1.0,
+                  blurRadius: 15.0,
+                  offset: Offset( -4,-4)
+
+              ),
+
+            ],
+
+
+
+              // image: DecorationImage(
+              //     image: AssetImage('images/pray.jpg'), fit: BoxFit.cover)
+
+          ),
+          child: Center(
+          child:          Text('Pray',style: TextStyle(fontSize: 50,color: Colors.red),),
+        )),
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const PrayerPage()));
+        },
       ),
       GestureDetector(
         child: Container(
@@ -205,7 +242,10 @@ Widget _songs(BuildContext context) {
               image: DecorationImage(
                   image: AssetImage('images/rapture.jpg'), fit: BoxFit.cover)),
         ),
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const PrayerPage()));
+        },
       )
     ],
     options: CarouselOptions(
@@ -215,7 +255,7 @@ Widget _songs(BuildContext context) {
         enlargeCenterPage: true,
         reverse: true,
         viewportFraction: 0.8),
-  );
+  ));
 }
 
 Widget _meetings(BuildContext context) {
@@ -279,96 +319,10 @@ Widget _guitarChord(BuildContext context) {
             image: DecorationImage(
                 image: AssetImage('images/worship.jpg'), fit: BoxFit.cover)),
       ),
-      onTap: () =>
-          Navigator.of(context).push(
-
-          PageTransition(
-          child: DashBoard(), type: PageTransitionType.rightToLeft,
-
-        duration: Duration(milliseconds: 600),
-            reverseDuration: Duration(milliseconds: 600),
-            opaque: false
-
-      ))
-
-  );
+      onTap: () => Navigator.of(context).push(PageTransition(
+          child: const DashBoard(),
+          type: PageTransitionType.rightToLeft,
+          duration: const Duration(milliseconds: 600),
+          reverseDuration: const Duration(milliseconds: 600),
+          opaque: false)));
 }
-Widget _recommended(_miniPlayer) {
-  return Column(
-    children: [
-
-      StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection("Worship").snapshots(),
-        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-          if(snapshot.hasData) {
-            final snap = snapshot.data!.docs;
-            return ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              itemCount: snap.length,
-              itemBuilder: (context, index) {
-                         return Stack(
-                    children: [
-                      GestureDetector(
-                        child:Container(
-
-                          height:50,
-                      width: MediaQuery.of(context).size.width,
-
-
-                      child: Card(
-                        child: Center(
-                          child: Row (
-                            children : [
-                                                 Text(
-
-                          snap[index]['name'],
-                          textAlign: TextAlign.start,
-                          style: const TextStyle(
-                            color: Colors.black54,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                            SizedBox(width:50),
-                            Text(
-
-                              snap[index].['title'],
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ]
-                       )),
-                      )),
-                        onTap: () {
-
-                           var ur= snap[index]['url'];
-                           var ti =snap[index]['title'];
-                           var music =snap[index]['music'];
-
-
-                
-                          _miniPlayer(url:ur,le:ti,music:music);
-
-                        },
-
-                      )
-                      ],
-                //   ),
-                 );
-              },
-            );
-          } else {
-            return const SizedBox();
-          }
-        },
-      )
-    ],
-
-  );
-
-
-}
-

@@ -1,5 +1,7 @@
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../services/auth.dart';
 import '../widgets/CustomDrawer.dart';
 
 
@@ -11,6 +13,13 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+
+  final User? user = Auth().currentUser;
+
+  Future<void> signOut() async {
+    await Auth().signOut();
+
+  }
 
   TextEditingController _getVin = TextEditingController();
 
@@ -74,7 +83,10 @@ class _DashBoardState extends State<DashBoard> {
                         ],
                       ),
                     )
-                )
+                ),
+                IconButton(onPressed: signOut, icon: Icon(Icons.person))
+
+
               ],
             ),
           ),
